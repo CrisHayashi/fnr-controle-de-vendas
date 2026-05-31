@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  nome       String
+  senhaHash  String    @map("senha_hash")
+  ativo      Boolean   @default(true)
+  vendedorId Int?      @unique @map("vendor_id")
+  vendedor   Vendedor? @relation(fields: [vendedorId], references: [id])
+
+  @@map("usuarios")
+}
+
+model Vendedor {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  telefone  String?
+  senhaHash String?  @map("senha_hash")
+  isAdmin   Boolean  @default(false) @map("is_admin")
+  descricao String?
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  pedidos      Pedido[]
+  agendamentos Agenda[]
+  usuario      Usuario?
+
+  @@map("vendedores")
+}
+
+model Cliente {
+  id          Int      @id @default(autoincrement())
+  nome        String
+  cpfCnpj     String   @unique @map("cpf_cnpj")
+  iEst        String?  @map("i_est")
+  iMuni       String?  @map("i_muni")
+  responsavel String
+  telefone    String?
+  email       String?  @unique
+  endereco    String?
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  pedidos      Pedido[]
+  agendamentos Agenda[]
+
+  @@map("clientes")
+}
+
+model Fornecedor {
+  id          Int      @id @default(autoincrement())
+  cnpj        String   @unique
+  razaoSocial String   @map("razao_social")
+  responsavel String?
+  telefone    String?
+  email       String?  @unique
+  endereco    String?
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  pedidos Pedido[]
+
+  @@map("fornecedores")
+}
+
+model Categoria {
+  id        Int      @id @default(autoincrement())
+  nome      String   @unique
+  descricao String?
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  produtos Produto[]
+  pedidos  Pedido[]
+
+  @@map("categorias")
+}
+
+model Produto {
+  id            Int      @id @default(autoincrement())
+  tipo          String
+  quantidade    Int
+  valorUnit     Float    @map("valor_unit")
+  valorTotal    Float    @map("valor_total")
+  unidadeMedida String?  @map("unidade_medida")
+  categoriaId   Int?     @map("categoria_id")
+  ativo         Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  categoria      Categoria?      @relation(fields: [categoriaId], references: [id])
+  pedidoProdutos PedidoProduto[]
+
+  @@map("produtos")
+}
+
+model Pedido {
+  id                    Int       @id @default(autoincrement())
+  numeroPedido          String    @unique @map("numero_pedido")
+  numeroOs              String?   @unique @map("numero_os")
+  dtPedido              DateTime  @default(now()) @map("dt_pedido")
+  dtPrevistaEntrega     DateTime? @map("dt_prevista_entrega")
+  dtEntrega             DateTime? @map("dt_entrega")
+  entregue              Boolean   @default(false)
+  ativo                 Boolean   @default(true)
+  modalidadeFrete       String?   @map("modalidade_frete")
+  transportadora        String?
+  ordemCompra           String?   @map("ordem_compra")
+  modalidadeFaturamento String?   @map("modalidade_faturamento")
+  formaPagamento        String?   @map("forma_pagamento")
+  condicaoPagamento     String?   @map("condicao_pagamento")
+  clienteId             Int?      @map("cliente_id")
+  fornecedorId          Int?      @map("fornecedor_id")
+  vendedorId            Int?      @map("vendedor_id")
+  categoriaId           Int?      @map("categoria_id")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  cliente    Cliente?    @relation(fields: [clienteId], references: [id])
+  fornecedor Fornecedor? @relation(fields: [fornecedorId], references: [id])
+  vendedor   Vendedor?   @relation(fields: [vendedorId], references: [id])
+  categoria  Categoria?  @relation(fields: [categoriaId], references: [id])
+  produtos   PedidoProduto[]
+
+  @@map("pedidos")
+}
+
+model PedidoProduto {
+  id            Int     @id @default(autoincrement())
+  pedidoId      Int     @map("pedido_id")
+  produtoId     Int     @map("produto_id")
+  quantidade    Int
+  valorUnit     Float   @map("valor_unit")
+  valorTotal    Float   @map("valor_total")
+  unidadeMedida String? @map("unidade_medida")
+  descricao     String?
+
+  pedido  Pedido  @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produto Produto @relation(fields: [produtoId], references: [id])
+
+  @@map("pedido_produto")
+}
+
+model Agenda {
+  id                 Int      @id @default(autoincrement())
+  dataAgendamento    DateTime @map("data_agendamento")
+  observacao         String?
+  realizado          Boolean  @default(false)
+  repetirMensalmente Boolean  @default(false) @map("repetir_mensalmente")
+  clienteId          Int?     @map("cliente_id")
+  vendedorId         Int?     @map("vendedor_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  cliente  Cliente?  @relation(fields: [clienteId], references: [id])
+  vendedor Vendedor? @relation(fields: [vendedorId], references: [id])
+
+  @@map("agenda")
+}
