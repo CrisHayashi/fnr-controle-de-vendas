@@ -172,9 +172,76 @@ npm install
 
 # Iniciar o servidor de desenvolvimento
 npm start
+
+# Executar os testes
+npm test
 ```
 
 O frontend estará disponível em **http://localhost:5173**
+
+---
+
+## 🧪 Como Executar os Testes Automatizados
+
+O projeto possui testes automatizados implementados no frontend utilizando **Jest** e **React Testing Library**.
+
+Os testes contemplam os módulos de **Clientes** e **Produtos**, validando cenários positivos e negativos, incluindo:
+
+- renderização das telas;
+- abertura de formulários;
+- preenchimento de campos;
+- envio de dados válidos;
+- simulação de erro no cadastro;
+- validação da exibição de mensagens de erro.
+
+### Acessar a pasta do frontend
+
+```bash
+cd copia_vendas/front
+```
+
+### Instalar as dependências
+
+```bash
+npm install
+```
+
+### Executar os testes
+
+```bash
+npm test
+```
+
+### Resultado esperado
+
+A execução deve apresentar as suítes e testes aprovados:
+
+```text
+Test Suites: 2 passed, 2 total
+Tests:       10 passed, 10 total
+```
+
+### Arquivos de teste
+
+Os testes automatizados estão localizados em:
+
+```text
+copia_vendas/front/src/pages/Clientes/Clientes.test.tsx
+copia_vendas/front/src/pages/Produtos/Produtos.test.tsx
+```
+
+### Ferramentas utilizadas nos testes
+
+- Jest;
+- ts-jest;
+- jest-environment-jsdom;
+- React Testing Library;
+- @testing-library/jest-dom.
+
+### Acessar a pasta do frontend
+
+```bash
+cd copia_vendas/front
 
 ---
 
